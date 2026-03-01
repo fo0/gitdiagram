@@ -4,17 +4,35 @@ export function exportMermaidSvgAsPng(svgElement: SVGSVGElement): void {
 
   const bbox = svgElement.getBBox();
   const transform = svgElement.getScreenCTM();
-  if (!transform) return;
 
-  const width = Math.ceil(bbox.width * transform.a);
-  const height = Math.ceil(bbox.height * transform.d);
+  // Use transform scaling if available, otherwise fall back to 1:1
+  const scaleX = transform ? transform.a : 1;
+  const scaleY = transform ? transform.d : 1;
+
+  // Use clientWidth/clientHeight as fallback when getBBox returns 0
+  const width =
+    Math.ceil(bbox.width * scaleX) ||
+    svgElement.clientWidth ||
+    svgElement.viewBox.baseVal.width ||
+    800;
+  const height =
+    Math.ceil(bbox.height * scaleY) ||
+    svgElement.clientHeight ||
+    svgElement.viewBox.baseVal.height ||
+    600;
+
   canvas.width = width * scale;
   canvas.height = height * scale;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
 
-  const svgData = new XMLSerializer().serializeToString(svgElement);
+  // Clone SVG and set explicit dimensions so the image renders at full size
+  const clonedSvg = svgElement.cloneNode(true) as SVGSVGElement;
+  clonedSvg.setAttribute("width", String(width));
+  clonedSvg.setAttribute("height", String(height));
+
+  const svgData = new XMLSerializer().serializeToString(clonedSvg);
   const img = new Image();
 
   img.onload = () => {
@@ -30,6 +48,10 @@ export function exportMermaidSvgAsPng(svgElement: SVGSVGElement): void {
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
+  };
+
+  img.onerror = () => {
+    console.error("Failed to load SVG as image for PNG export");
   };
 
   img.src =
