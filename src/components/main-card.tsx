@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Maximize2, Minimize2 } from "lucide-react";
 import React from "react";
 import { exampleRepos, isExampleRepo } from "~/lib/exampleRepos";
 import { ExportDropdown } from "./export-dropdown";
@@ -24,6 +24,8 @@ interface MainCardProps {
   zoomingEnabled?: boolean;
   onZoomToggle?: () => void;
   loading?: boolean;
+  isMaximized?: boolean;
+  onMaximizeToggle?: () => void;
 }
 
 export default function MainCard({
@@ -37,6 +39,8 @@ export default function MainCard({
   zoomingEnabled,
   onZoomToggle,
   loading,
+  isMaximized,
+  onMaximizeToggle,
 }: MainCardProps) {
   const [repoUrl, setRepoUrl] = useState("");
   const [error, setError] = useState("");
@@ -164,6 +168,23 @@ export default function MainCard({
                         checked={zoomingEnabled}
                         onCheckedChange={onZoomToggle}
                       />
+                      {onMaximizeToggle && (
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 rounded-md border-[3px] border-black px-4 py-2 font-medium text-black transition-colors bg-purple-300 hover:bg-purple-400 dark:border-[#2d1d4e] dark:bg-[hsl(var(--neo-subtle-muted))] dark:text-black dark:hover:bg-[hsl(var(--neo-subtle))]"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            onMaximizeToggle();
+                          }}
+                        >
+                          {isMaximized ? (
+                            <Minimize2 size={18} />
+                          ) : (
+                            <Maximize2 size={18} />
+                          )}
+                          {isMaximized ? "Exit Fullscreen" : "Fullscreen"}
+                        </button>
+                      )}
                     </>
                   )}
                 </div>

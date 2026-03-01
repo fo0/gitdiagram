@@ -9,9 +9,10 @@ import { useTheme } from "next-themes";
 interface MermaidChartProps {
   chart: string;
   zoomingEnabled?: boolean;
+  isMaximized?: boolean;
 }
 
-const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
+const MermaidChart = ({ chart, zoomingEnabled = true, isMaximized = false }: MermaidChartProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -109,7 +110,7 @@ const MermaidChart = ({ chart, zoomingEnabled = true }: MermaidChartProps) => {
   return (
     <div
       ref={containerRef}
-      className={`w-full max-w-full p-4 ${zoomingEnabled ? "h-[600px]" : ""}`}
+      className={`w-full max-w-full p-4 ${isMaximized ? "h-full" : zoomingEnabled ? "h-[600px]" : ""}`}
     >
       <div
         key={`${chart}-${zoomingEnabled}-${resolvedTheme ?? "light"}`}

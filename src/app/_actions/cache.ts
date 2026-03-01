@@ -6,6 +6,7 @@ import { diagramCache } from "~/server/db/schema";
 import { sql } from "drizzle-orm";
 
 export async function getCachedDiagram(username: string, repo: string) {
+  if (!db) return null;
   try {
     const cached = await db
       .select()
@@ -23,6 +24,7 @@ export async function getCachedDiagram(username: string, repo: string) {
 }
 
 export async function getCachedExplanation(username: string, repo: string) {
+  if (!db) return null;
   try {
     const cached = await db
       .select()
@@ -46,6 +48,7 @@ export async function cacheDiagramAndExplanation(
   explanation: string,
   usedOwnKey = false,
 ) {
+  if (!db) return;
   try {
     await db
       .insert(diagramCache)
@@ -71,6 +74,7 @@ export async function cacheDiagramAndExplanation(
 }
 
 export async function getDiagramStats() {
+  if (!db) return null;
   try {
     const stats = await db
       .select({

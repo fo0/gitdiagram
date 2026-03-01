@@ -5,6 +5,7 @@ import { eq, and } from "drizzle-orm";
 import { diagramCache } from "~/server/db/schema";
 
 export async function getLastGeneratedDate(username: string, repo: string) {
+  if (!db) return undefined;
   const result = await db
     .select()
     .from(diagramCache)
