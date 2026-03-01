@@ -17,6 +17,10 @@ const MODEL_PRICING: Record<string, ModelPricing> = {
   "gpt-5-mini": { inputPerMillionUsd: 0.25, outputPerMillionUsd: 2.0 },
   "gpt-5-nano": { inputPerMillionUsd: 0.05, outputPerMillionUsd: 0.4 },
   "o4-mini": { inputPerMillionUsd: 1.1, outputPerMillionUsd: 4.4 },
+
+  // Anthropic Claude models
+  "claude-sonnet-4-6": { inputPerMillionUsd: 3.0, outputPerMillionUsd: 15.0 },
+  "claude-opus-4-6": { inputPerMillionUsd: 15.0, outputPerMillionUsd: 75.0 },
 };
 const DEFAULT_PRICING = MODEL_PRICING[DEFAULT_PRICING_MODEL] as ModelPricing;
 
@@ -44,6 +48,10 @@ export function resolvePricingModel(model: string): string {
   if (withoutDate.startsWith("gpt-5-nano")) return "gpt-5-nano";
   if (withoutDate.startsWith("gpt-5")) return "gpt-5";
   if (withoutDate.startsWith("o4-mini")) return "o4-mini";
+
+  // Anthropic Claude models
+  if (withoutDate.startsWith("claude-sonnet-4")) return "claude-sonnet-4-6";
+  if (withoutDate.startsWith("claude-opus-4")) return "claude-opus-4-6";
 
   return DEFAULT_PRICING_MODEL;
 }

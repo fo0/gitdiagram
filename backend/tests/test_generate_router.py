@@ -31,7 +31,7 @@ def test_generate_cost_success(monkeypatch):
     async def fake_count_input_tokens(*, model, system_prompt, data, api_key=None, reasoning_effort=None):
         return 100
 
-    monkeypatch.setattr(generate.openai_service, "count_input_tokens", fake_count_input_tokens)
+    monkeypatch.setattr(generate.llm_service, "count_input_tokens", fake_count_input_tokens)
 
     response = client.post(
         "/generate/cost",
@@ -102,7 +102,7 @@ def test_generate_stream_event_order_with_fix_loop(monkeypatch):
     )
 
     monkeypatch.setattr(generate, "_estimate_repo_input_tokens", fake_estimate_repo_input_tokens)
-    monkeypatch.setattr(generate.openai_service, "stream_completion", fake_stream_completion)
+    monkeypatch.setattr(generate.llm_service, "stream_completion", fake_stream_completion)
     monkeypatch.setattr(generate, "validate_mermaid_syntax", lambda diagram: next(validation_results))
 
     response = client.post(

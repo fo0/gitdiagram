@@ -24,6 +24,9 @@ MODEL_PRICING: dict[str, ModelPricing] = {
     "gpt-5-mini": ModelPricing(input_per_million_usd=0.25, output_per_million_usd=2.0),
     "gpt-5-nano": ModelPricing(input_per_million_usd=0.05, output_per_million_usd=0.4),
     "o4-mini": ModelPricing(input_per_million_usd=1.1, output_per_million_usd=4.4),
+    # Anthropic Claude models
+    "claude-sonnet-4-6": ModelPricing(input_per_million_usd=3.0, output_per_million_usd=15.0),
+    "claude-opus-4-6": ModelPricing(input_per_million_usd=15.0, output_per_million_usd=75.0),
 }
 
 DEFAULT_PRICING = MODEL_PRICING[DEFAULT_PRICING_MODEL]
@@ -62,6 +65,12 @@ def resolve_pricing_model(model: str) -> str:
         return "gpt-5"
     if without_date.startswith("o4-mini"):
         return "o4-mini"
+
+    # Anthropic Claude models
+    if without_date.startswith("claude-sonnet-4"):
+        return "claude-sonnet-4-6"
+    if without_date.startswith("claude-opus-4"):
+        return "claude-opus-4-6"
 
     return DEFAULT_PRICING_MODEL
 

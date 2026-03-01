@@ -14,7 +14,7 @@ import {
   countInputTokens,
   estimateTokens,
   streamCompletion,
-} from "~/server/generate/openai";
+} from "~/server/generate/llm";
 import {
   SYSTEM_FIRST_PROMPT,
   SYSTEM_FIX_MERMAID_PROMPT,

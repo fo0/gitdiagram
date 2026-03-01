@@ -19,12 +19,12 @@ from app.prompts import (
 from app.services.github_service import GitHubService
 from app.services.mermaid_service import format_validation_feedback, validate_mermaid_syntax
 from app.services.model_config import get_model
-from app.services.openai_service import OpenAIService
+from app.services.llm_provider import get_llm_service
 from app.services.pricing import estimate_text_token_cost_usd
 
-router = APIRouter(prefix="/generate", tags=["OpenAI"])
+router = APIRouter(prefix="/generate", tags=["Generate"])
 
-openai_service = OpenAIService()
+llm_service = get_llm_service()
 
 MAX_MERMAID_FIX_ATTEMPTS = 3
 MULTI_STAGE_INPUT_MULTIPLIER = 2
@@ -91,7 +91,7 @@ async def _estimate_repo_input_tokens(
     api_key: str | None = None,
 ) -> int:
     try:
-        return await openai_service.count_input_tokens(
+        return await llm_service.count_input_tokens(
             model=model,
             system_prompt=SYSTEM_FIRST_PROMPT,
             data={
@@ -102,7 +102,7 @@ async def _estimate_repo_input_tokens(
             reasoning_effort="medium",
         )
     except Exception:
-        return openai_service.estimate_tokens(f"{file_tree}\n{readme}")
+        return llm_service.estimate_tokens(f"{file_tree}\n{readme}")
 
 
 @router.post("/cost")
@@ -256,7 +256,7 @@ async def generate_stream(request: Request):
             )
 
             explanation = ""
-            async for chunk in openai_service.stream_completion(
+            async for chunk in llm_service.stream_completion(
                 model=model,
                 system_prompt=SYSTEM_FIRST_PROMPT,
                 data={
@@ -284,7 +284,7 @@ async def generate_stream(request: Request):
             )
 
             full_mapping_response = ""
-            async for chunk in openai_service.stream_completion(
+            async for chunk in llm_service.stream_completion(
                 model=model,
                 system_prompt=SYSTEM_SECOND_PROMPT,
                 data={
@@ -314,7 +314,7 @@ async def generate_stream(request: Request):
             )
 
             mermaid_code = ""
-            async for chunk in openai_service.stream_completion(
+            async for chunk in llm_service.stream_completion(
                 model=model,
                 system_prompt=SYSTEM_THIRD_PROMPT,
                 data={
@@ -358,7 +358,7 @@ async def generate_stream(request: Request):
                 )
 
                 repaired_diagram = ""
-                async for chunk in openai_service.stream_completion(
+                async for chunk in llm_service.stream_completion(
                     model=model,
                     system_prompt=SYSTEM_FIX_MERMAID_PROMPT,
                     data={
