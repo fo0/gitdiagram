@@ -71,3 +71,17 @@ export function exportMermaidSvgAsPng(svgElement: SVGSVGElement): void {
     "data:image/svg+xml;base64," +
     btoa(unescape(encodeURIComponent(svgData)));
 }
+
+export function downloadMermaidCode(code: string): void {
+  const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+
+  const anchor = document.createElement("a");
+  anchor.download = "diagram.mmd";
+  anchor.href = url;
+  document.body.appendChild(anchor);
+  anchor.click();
+  document.body.removeChild(anchor);
+
+  URL.revokeObjectURL(url);
+}

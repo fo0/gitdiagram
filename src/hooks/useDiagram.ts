@@ -149,7 +149,8 @@ export function useDiagram(username: string, repo: string) {
     void getDiagram();
   }, [getDiagram]);
 
-  const { handleCopy, handleExportImage } = useDiagramExport(diagram);
+  const { handleCopy, handleDownloadCode, handleExportImage } =
+    useDiagramExport(diagram);
 
   const handleApiKeySubmit = async (apiKey: string) => {
     setShowApiKeyDialog(false);
@@ -182,6 +183,7 @@ export function useDiagram(username: string, repo: string) {
     lastGenerated,
     cost,
     handleCopy,
+    handleDownloadCode,
     showApiKeyDialog,
     handleApiKeySubmit,
     handleCloseApiKeyDialog,

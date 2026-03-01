@@ -47,6 +47,7 @@ export default function RepoPageClient({ username, repo }: RepoPageClientProps) 
     cost,
     showApiKeyDialog,
     handleCopy,
+    handleDownloadCode,
     handleApiKeySubmit,
     handleCloseApiKeyDialog,
     handleOpenApiKeyDialog,
@@ -86,6 +87,7 @@ export default function RepoPageClient({ username, repo }: RepoPageClientProps) 
             username={normalizedUsername}
             repo={normalizedRepo}
             onCopy={handleCopy}
+            onDownloadCode={handleDownloadCode}
             lastGenerated={lastGenerated}
             onExportImage={handleExportImage}
             onRegenerate={handleRegenerate}
