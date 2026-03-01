@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { toTaggedMessage } from "~/server/generate/format";
 import { getGithubData } from "~/server/generate/github";
 import { getModel } from "~/server/generate/model-config";
-import { countInputTokens, estimateTokens } from "~/server/generate/openai";
+import { countInputTokens, estimateTokens } from "~/server/generate/llm";
 import { SYSTEM_FIRST_PROMPT } from "~/server/generate/prompts";
 import { estimateTextTokenCostUsd } from "~/server/generate/pricing";
 import { generateRequestSchema } from "~/server/generate/types";
