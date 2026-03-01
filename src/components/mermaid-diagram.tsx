@@ -110,15 +110,11 @@ const MermaidChart = ({ chart, zoomingEnabled = true, isMaximized = false }: Mer
   return (
     <div
       ref={containerRef}
-      className={`w-full max-w-full p-4 ${isMaximized ? "h-full" : zoomingEnabled ? "h-[600px]" : ""}`}
+      className={`w-full max-w-full p-4 ${isMaximized ? "h-full" : zoomingEnabled ? "h-[600px]" : "max-h-[80vh] overflow-auto"}`}
     >
       <div
         key={`${chart}-${zoomingEnabled}-${resolvedTheme ?? "light"}`}
-        className={`mermaid h-full text-foreground ${
-          zoomingEnabled
-            ? "rounded-lg border-2 border-black bg-white dark:border-[#3b4656] dark:bg-[#1f2631]"
-            : ""
-        }`}
+        className={`mermaid h-full text-foreground rounded-lg border-2 border-black bg-white dark:border-[#3b4656] dark:bg-[#1f2631]`}
       >
         {chart}
       </div>

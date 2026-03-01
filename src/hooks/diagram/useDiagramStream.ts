@@ -116,7 +116,11 @@ export function useDiagramStream({
             diagram,
             mapping: data.mapping ?? buffers.mapping,
           });
-          await onComplete({ explanation, diagram });
+          try {
+            await onComplete({ explanation, diagram });
+          } catch (err) {
+            console.error("Failed to cache diagram:", err);
+          }
           return false;
         }
         case "error":
@@ -144,19 +148,26 @@ export function useDiagramStream({
         fixDiagramDraft: "",
       };
 
-      await streamDiagramGeneration(
-        {
-          username,
-          repo,
-          apiKey: localStorage.getItem("openai_key") ?? undefined,
-          githubPat,
-        },
-        {
-          onMessage: (message) => handleStreamMessage(message, buffers),
-        },
-      );
+      try {
+        await streamDiagramGeneration(
+          {
+            username,
+            repo,
+            apiKey: localStorage.getItem("openai_key") ?? undefined,
+            githubPat,
+          },
+          {
+            onMessage: (message) => handleStreamMessage(message, buffers),
+          },
+        );
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Generation failed unexpectedly.";
+        setState({ status: "error", error: message });
+        onError(message);
+      }
     },
-    [handleStreamMessage, repo, username],
+    [handleStreamMessage, onError, repo, username],
   );
 
   return {
