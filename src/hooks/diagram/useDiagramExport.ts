@@ -1,10 +1,17 @@
 import { useCallback } from "react";
 
-import { exportMermaidSvgAsPng } from "~/features/diagram/export";
+import {
+  exportMermaidSvgAsPng,
+  downloadMermaidCode,
+} from "~/features/diagram/export";
 
 export function useDiagramExport(diagram: string) {
   const handleCopy = useCallback(async () => {
     await navigator.clipboard.writeText(diagram);
+  }, [diagram]);
+
+  const handleDownloadCode = useCallback(() => {
+    downloadMermaidCode(diagram);
   }, [diagram]);
 
   const handleExportImage = useCallback(() => {
@@ -16,6 +23,7 @@ export function useDiagramExport(diagram: string) {
 
   return {
     handleCopy,
+    handleDownloadCode,
     handleExportImage,
   };
 }

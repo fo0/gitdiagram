@@ -18,6 +18,7 @@ interface MainCardProps {
   username?: string;
   repo?: string;
   onCopy?: () => void;
+  onDownloadCode?: () => void;
   lastGenerated?: Date;
   onExportImage?: () => void;
   onRegenerate?: () => void;
@@ -33,6 +34,7 @@ export default function MainCard({
   username,
   repo,
   onCopy,
+  onDownloadCode,
   lastGenerated,
   onExportImage,
   onRegenerate,
@@ -200,6 +202,7 @@ export default function MainCard({
                   {activeDropdown === "export" && (
                     <ExportDropdown
                       onCopy={onCopy!}
+                      onDownloadCode={onDownloadCode!}
                       lastGenerated={lastGenerated!}
                       onExportImage={onExportImage!}
                       isOpen={true}
