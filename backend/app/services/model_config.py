@@ -2,12 +2,10 @@ from __future__ import annotations
 
 import os
 
+from app.services.llm_provider import get_provider
+
 DEFAULT_OPENAI_MODEL = "gpt-5.2"
 DEFAULT_ANTHROPIC_MODEL = "claude-sonnet-4-6"
-
-
-def get_provider() -> str:
-    return os.getenv("LLM_PROVIDER", "openai").strip().lower()
 
 
 def get_model() -> str:

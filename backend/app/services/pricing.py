@@ -27,8 +27,6 @@ MODEL_PRICING: dict[str, ModelPricing] = {
     # Anthropic Claude models
     "claude-sonnet-4-6": ModelPricing(input_per_million_usd=3.0, output_per_million_usd=15.0),
     "claude-opus-4-6": ModelPricing(input_per_million_usd=15.0, output_per_million_usd=75.0),
-    "claude-sonnet-4-20250514": ModelPricing(input_per_million_usd=3.0, output_per_million_usd=15.0),
-    "claude-opus-4-20250514": ModelPricing(input_per_million_usd=15.0, output_per_million_usd=75.0),
 }
 
 DEFAULT_PRICING = MODEL_PRICING[DEFAULT_PRICING_MODEL]

@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from app.services.anthropic_service import AnthropicService
     from app.services.openai_service import OpenAIService
 
-LLMService = "OpenAIService | AnthropicService"
+    LLMService = OpenAIService | AnthropicService
 
 
 def get_provider() -> str:

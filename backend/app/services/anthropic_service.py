@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Literal
 import math
 import os
 
@@ -48,7 +48,7 @@ class AnthropicService:
         system_prompt: str,
         data: dict[str, str | None],
         api_key: str | None = None,
-        reasoning_effort: object = None,  # accepted but ignored for API compat
+        reasoning_effort: Literal["low", "medium", "high"] | None = None,
         max_output_tokens: int | None = None,
     ) -> AsyncGenerator[str, None]:
         user_prompt = format_user_message(data)
@@ -75,7 +75,7 @@ class AnthropicService:
         system_prompt: str,
         data: dict[str, str | None],
         api_key: str | None = None,
-        reasoning_effort: object = None,  # accepted but ignored for API compat
+        reasoning_effort: Literal["low", "medium", "high"] | None = None,
     ) -> int:
         user_prompt = format_user_message(data)
         resolved_api_key = self._resolve_api_key(api_key)

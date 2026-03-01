@@ -1,7 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-export type ReasoningEffort = "low" | "medium" | "high";
-
 const DEFAULT_MAX_TOKENS = 16384;
 
 function resolveApiKey(overrideApiKey?: string): string {
@@ -14,16 +12,12 @@ function resolveApiKey(overrideApiKey?: string): string {
   return apiKey;
 }
 
-export function estimateTokens(text: string): number {
-  return Math.ceil(text.length / 4);
-}
-
 interface StreamCompletionParams {
   model: string;
   systemPrompt: string;
   userPrompt: string;
   apiKey?: string;
-  reasoningEffort?: ReasoningEffort; // accepted but ignored for API compat
+  reasoningEffort?: string; // accepted but ignored for API compat
   maxOutputTokens?: number;
 }
 
@@ -60,7 +54,7 @@ interface CountInputTokensParams {
   systemPrompt: string;
   userPrompt: string;
   apiKey?: string;
-  reasoningEffort?: ReasoningEffort; // accepted but ignored for API compat
+  reasoningEffort?: string; // accepted but ignored for API compat
 }
 
 export async function countInputTokens({

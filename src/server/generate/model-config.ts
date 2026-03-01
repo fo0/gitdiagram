@@ -7,11 +7,11 @@ function readEnvValue(name: string): string | undefined {
 }
 
 export function getProvider(): string {
-  return readEnvValue("LLM_PROVIDER") ?? "openai";
+  return (readEnvValue("LLM_PROVIDER") ?? "openai").toLowerCase();
 }
 
 export function getModel(): string {
-  const provider = getProvider().toLowerCase();
+  const provider = getProvider();
 
   if (provider === "anthropic") {
     return readEnvValue("ANTHROPIC_MODEL") ?? DEFAULT_ANTHROPIC_MODEL;

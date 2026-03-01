@@ -21,8 +21,6 @@ const MODEL_PRICING: Record<string, ModelPricing> = {
   // Anthropic Claude models
   "claude-sonnet-4-6": { inputPerMillionUsd: 3.0, outputPerMillionUsd: 15.0 },
   "claude-opus-4-6": { inputPerMillionUsd: 15.0, outputPerMillionUsd: 75.0 },
-  "claude-sonnet-4-20250514": { inputPerMillionUsd: 3.0, outputPerMillionUsd: 15.0 },
-  "claude-opus-4-20250514": { inputPerMillionUsd: 15.0, outputPerMillionUsd: 75.0 },
 };
 const DEFAULT_PRICING = MODEL_PRICING[DEFAULT_PRICING_MODEL] as ModelPricing;
 

@@ -6,16 +6,13 @@
  *   - "anthropic" → Anthropic Claude
  */
 
-import type { ReasoningEffort } from "./openai";
+import { getProvider } from "./model-config";
 
-export type { ReasoningEffort };
+export type ReasoningEffort = "low" | "medium" | "high";
 
-function getProvider(): string {
-  return (process.env.LLM_PROVIDER ?? "openai").trim().toLowerCase();
+export function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4);
 }
-
-// Re-export estimateTokens (identical heuristic in both modules).
-export { estimateTokens } from "./openai";
 
 interface StreamCompletionParams {
   model: string;
@@ -26,18 +23,6 @@ interface StreamCompletionParams {
   maxOutputTokens?: number;
 }
 
-export async function* streamCompletion(
-  params: StreamCompletionParams,
-): AsyncGenerator<string, void, void> {
-  if (getProvider() === "anthropic") {
-    const { streamCompletion: sc } = await import("./anthropic");
-    yield* sc(params);
-  } else {
-    const { streamCompletion: sc } = await import("./openai");
-    yield* sc(params);
-  }
-}
-
 interface CountInputTokensParams {
   model: string;
   systemPrompt: string;
@@ -46,14 +31,33 @@ interface CountInputTokensParams {
   reasoningEffort?: ReasoningEffort;
 }
 
+type ProviderModule = {
+  streamCompletion: (params: StreamCompletionParams) => AsyncGenerator<string, void, void>;
+  countInputTokens: (params: CountInputTokensParams) => Promise<number>;
+};
+
+let _providerModule: ProviderModule | null = null;
+
+async function getModule(): Promise<ProviderModule> {
+  if (!_providerModule) {
+    _providerModule =
+      getProvider() === "anthropic"
+        ? await import("./anthropic")
+        : await import("./openai");
+  }
+  return _providerModule;
+}
+
+export async function* streamCompletion(
+  params: StreamCompletionParams,
+): AsyncGenerator<string, void, void> {
+  const mod = await getModule();
+  yield* mod.streamCompletion(params);
+}
+
 export async function countInputTokens(
   params: CountInputTokensParams,
 ): Promise<number> {
-  if (getProvider() === "anthropic") {
-    const { countInputTokens: cit } = await import("./anthropic");
-    return cit(params);
-  } else {
-    const { countInputTokens: cit } = await import("./openai");
-    return cit(params);
-  }
+  const mod = await getModule();
+  return mod.countInputTokens(params);
 }
