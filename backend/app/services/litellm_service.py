@@ -77,18 +77,19 @@ class LiteLLMService:
         messages = self._build_messages(system_prompt, user_prompt)
 
         client = self._create_client(resolved_api_key)
+        stream = await client.chat.completions.create(
+            model=model,
+            messages=messages,
+            stream=True,
+            max_tokens=max_output_tokens or self.DEFAULT_MAX_TOKENS,
+        )
         try:
-            stream = await client.chat.completions.create(
-                model=model,
-                messages=messages,
-                stream=True,
-                max_tokens=max_output_tokens or self.DEFAULT_MAX_TOKENS,
-            )
             async for chunk in stream:
                 choice = chunk.choices[0] if chunk.choices else None
                 if choice and choice.delta and choice.delta.content:
                     yield choice.delta.content
         finally:
+            await stream.close()
             await client.close()
 
     async def count_input_tokens(
