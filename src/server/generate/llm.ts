@@ -4,6 +4,7 @@
  * Controlled by `LLM_PROVIDER` env var:
  *   - "openai"    → OpenAI  (default)
  *   - "anthropic" → Anthropic Claude
+ *   - "litellm"   → LiteLLM proxy (OpenAI-compatible)
  */
 
 import { getProvider } from "./model-config";
@@ -40,10 +41,14 @@ let _providerModule: ProviderModule | null = null;
 
 async function getModule(): Promise<ProviderModule> {
   if (!_providerModule) {
-    _providerModule =
-      getProvider() === "anthropic"
-        ? await import("./anthropic")
-        : await import("./openai");
+    const provider = getProvider();
+    if (provider === "anthropic") {
+      _providerModule = await import("./anthropic");
+    } else if (provider === "litellm") {
+      _providerModule = await import("./litellm");
+    } else {
+      _providerModule = await import("./openai");
+    }
   }
   return _providerModule;
 }
