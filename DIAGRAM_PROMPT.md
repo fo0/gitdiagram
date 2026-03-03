@@ -1,98 +1,154 @@
 # Mermaid-Diagramm mit Claude Code generieren
 
-> Extrahiert aus der [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) 3-Stufen-Pipeline und zu einem einzigen Claude-Code-Prompt konsolidiert.
+> Extrahiert aus der [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) 3-Stufen-Pipeline, konsolidiert und optimiert fuer Claude Code.
 
 ---
 
 ## Schnellstart
 
-Kopiere den Prompt unten und verwende ihn direkt in Claude Code, während du dich im Root-Verzeichnis deines Projekts befindest.
+```bash
+# Im Root-Verzeichnis des Projekts:
+claude "$(cat DIAGRAM_PROMPT.md)"
+```
 
 ---
 
 ## Der Prompt
 
-```
-Analysiere dieses Repository und erzeuge ein Mermaid.js System-Design-Diagramm der Architektur.
+````
+You are a principal software engineer creating a system-design diagram for this repository.
 
-Gehe dabei in drei Schritten vor:
+<task>
+Analyze this repository and produce a single, valid Mermaid.js architecture diagram.
+Write the result to `ARCHITECTURE.mmd` (raw Mermaid code, no markdown fences).
+</task>
 
-### Schritt 1: Repository-Analyse
+Work through these three phases. Do your analysis internally — only output the final Mermaid code.
 
-Lies den File-Tree (über `find . -type f` oder Glob) und die README. Analysiere:
+## Phase 1 — Repository Analysis
 
-1. **Projekttyp & Zweck** — Full-Stack-App, CLI-Tool, Library, Compiler, Microservices, etc.
-2. **Dateistruktur** — Top-Level-Verzeichnisse, Architektur-Patterns (MVC, Hexagonal, Monorepo, etc.), Config-Dateien, Build-Skripte.
-3. **README** — Tech-Stack, beschriebene Architektur, Abhängigkeiten, Features.
-4. **Hauptkomponenten** — Frontend, Backend, Datenbank, externe Services, Message Queues, etc.
-5. **Beziehungen** — Datenfluss, API-Aufrufe, Abhängigkeiten zwischen Komponenten.
+Gather context:
+1. Read the file tree. Exclude irrelevant directories: `.git`, `node_modules`, `dist`, `build`, `.next`, `__pycache__`, `.venv`, `vendor`, `target`, `.idea`, `.vscode`.
+2. Read the README (or similar: docs/*, CONTRIBUTING.md).
+3. Skim key config files (package.json, pyproject.toml, Cargo.toml, go.mod, docker-compose.yml, Makefile, etc.) to identify the tech stack.
 
-### Schritt 2: Component Mapping
+From this, determine:
+- **Project type**: full-stack app, CLI tool, library, compiler, microservices, monorepo, mobile app, data pipeline, etc.
+- **Main components**: frontend, backend, API gateway, database, cache, message queue, workers, external services, CI/CD, etc.
+- **Relationships**: data flow, API calls, event buses, dependency direction.
+- **Architecture patterns**: MVC, hexagonal, CQRS, layered, plugin-based, etc.
 
-Mappe jede identifizierte Komponente auf die konkreten Dateien/Verzeichnisse im Repo:
+## Phase 2 — Component Mapping
 
-- Fokus auf Hauptkomponenten aus der Analyse.
-- Sowohl Verzeichnisse als auch spezifische Dateien inkludieren.
-- Wenn keine klare Zuordnung existiert, die Komponente weglassen.
+Map each identified component to its concrete file or directory in the repo:
 
-Format:
-```
-1. [Komponenten-Name]: [Datei-/Verzeichnispfad]
-2. [Komponenten-Name]: [Datei-/Verzeichnispfad]
-...
-```
+<rules>
+- Only map components where a clear match exists.
+- Prefer directories for modules/layers, specific files for entry points or configs.
+- Use exact paths as they appear in the file tree.
+- Aim for 10–30 mappings. More is better, but only if accurate.
+</rules>
 
-### Schritt 3: Mermaid-Diagramm erzeugen
+## Phase 3 — Mermaid Diagram Generation
 
-Erzeuge validen Mermaid.js-Code nach diesen Regeln:
+Generate valid Mermaid.js code following these specifications:
 
-**Struktur:**
-- Verwende `flowchart TD` (top-down) oder `graph TD`.
-- Orientiere das Diagramm **so vertikal wie moeglich**. Vermeide lange horizontale Ketten.
-- Gruppiere zusammengehoerige Komponenten in `subgraph`-Bloecken.
-- Verwende passende Formen: Rechtecke fuer Services, Zylinder fuer Datenbanken, etc.
-- Zeige Datenfluss/Abhaengigkeiten mit Pfeilen und beschrifteten Kanten.
+<diagram_structure>
+- Use `flowchart TD` (top-down).
+- Orient the diagram VERTICALLY. Avoid long horizontal chains of nodes.
+- Group related components in `subgraph` blocks.
+- Use appropriate shapes:
+  - `("Label")` — rounded rectangle for services/components
+  - `[("Label")]` — cylinder for databases
+  - `["Label"]` — rectangle for generic modules
+  - `{{"Label"}}` — hexagon for external services
+  - `(["Label"])` — stadium for queues/caches
+- Show data flow with labeled arrows: `A -->|"description"| B`
+- Not every arrow needs a label — only add labels that convey meaningful information.
+- Cap complexity: aim for 15–35 nodes. For large repos, group sub-components into a single subgraph node rather than showing every file.
+</diagram_structure>
 
-**Click Events (interaktiv):**
-- Fuer jede gemappte Komponente einen Click-Event mit dem Repo-Pfad einfuegen.
-- Nur den relativen Pfad verwenden, keine vollstaendigen URLs.
-- Beispiel: `click Frontend "src/app"`
-- Die Pfade duerfen NICHT in den sichtbaren Node-Labels auftauchen — nur in Click-Events.
+<click_events>
+- Add `click NodeID "path/to/file_or_dir"` for every mapped component.
+- Use relative paths only. Never full URLs.
+- Paths must NOT appear in visible node labels — only in click events.
+- Example: `click API "src/api/routes.ts"`
+</click_events>
 
-**Farben & Styles:**
-- Farbcodierung ist Pflicht! Verwende `classDef` fuer verschiedene Komponenten-Typen.
-- Beispiel:
-  ```
+<styling>
+Colors are MANDATORY. Define classDef styles and apply them to every node.
+
+Suggested palette (adapt to project):
   classDef frontend fill:#42b883,stroke:#35495e,color:#fff
   classDef backend fill:#3178c6,stroke:#265a8f,color:#fff
   classDef database fill:#336791,stroke:#264d73,color:#fff
+  classDef cache fill:#dc382c,stroke:#a02a22,color:#fff
+  classDef queue fill:#ff6600,stroke:#cc5200,color:#fff
   classDef external fill:#ff6347,stroke:#cc4f39,color:#fff
-  ```
+  classDef infra fill:#7b42bc,stroke:#5e338f,color:#fff
+  classDef testing fill:#f0ad4e,stroke:#c49038,color:#000
+</styling>
 
-**Syntax-Regeln (KRITISCH — Mermaid-Parser ist streng):**
-1. Sonderzeichen in Node-Labels MUESSEN in Anfuehrungszeichen stehen:
-   - Falsch: `EX[/api/process (Backend)]:::api`
-   - Richtig: `EX["/api/process (Backend)"]:::api`
-2. Keine `:::class` auf Subgraph-Deklarationen:
-   - Falsch: `subgraph "Frontend":::frontend`
-   - Richtig: `subgraph "Frontend"` (Style auf Nodes innerhalb anwenden)
-3. Keine Leerzeichen zwischen Pipe und Anfuehrungszeichen bei Kanten-Labels:
-   - Falsch: `A -->| "text" | B`
-   - Richtig: `A -->|"text"| B`
-4. Keine Subgraph-Aliase:
-   - Falsch: `subgraph FE "Frontend"`
-   - Richtig: `subgraph "Frontend"`
-5. Kein `%%{init: ...}%%` Block — weglassen.
-6. Keine Markdown-Code-Fences um den Output.
+<syntax_rules>
+CRITICAL — the Mermaid parser is strict. Violating any of these produces a parse error:
 
-**Ausgabe-Template:**
+1. QUOTE all labels containing special characters ( ) / . : & etc.
+   WRONG:  `EX[/api/process (Backend)]:::api`
+   RIGHT:  `EX["/api/process (Backend)"]:::api`
 
-```mermaid
+2. QUOTE all edge labels containing special characters:
+   WRONG:  `A -->|calls Process()| B`
+   RIGHT:  `A -->|"calls Process()"| B`
+
+3. NO spaces between pipes and quotes in edge labels:
+   WRONG:  `A -->| "text" | B`
+   RIGHT:  `A -->|"text"| B`
+
+4. NO :::class on subgraph declarations:
+   WRONG:  `subgraph "Frontend":::frontend`
+   RIGHT:  `subgraph "Frontend"`  (apply styles to nodes inside)
+
+5. NO subgraph aliases:
+   WRONG:  `subgraph FE "Frontend"`
+   RIGHT:  `subgraph "Frontend"`
+
+6. NO `%%{init: ...}%%` blocks. Omit entirely.
+
+7. NEVER use `end` as a node ID — it is a reserved keyword.
+   WRONG:  `end["End Node"]`
+   RIGHT:  `EndNode["End Node"]`
+
+8. Node IDs must NOT start with a digit:
+   WRONG:  `1A["First"]`
+   RIGHT:  `A1["First"]`
+
+9. NO semicolons at line ends.
+
+10. NO empty subgraphs — every subgraph must contain at least one node.
+
+11. NO nested quotes. If a label needs quotes inside, rephrase:
+    WRONG:  `A["He said "hello""]`
+    RIGHT:  `A["He said hello"]`
+</syntax_rules>
+
+<self_check>
+Before writing the file, mentally verify:
+- [ ] Every node has a classDef applied
+- [ ] Every label with special chars is quoted
+- [ ] Every edge label has no spaces between pipes and quotes
+- [ ] No subgraph has :::class or an alias
+- [ ] No node ID is `end` or starts with a digit
+- [ ] No %%{init} block
+- [ ] Diagram is predominantly vertical
+- [ ] 15–35 nodes (not too sparse, not unreadable)
+- [ ] Click events use relative paths, not visible in labels
+</self_check>
+
+<output_template>
 flowchart TD
-    %% Globale Entitaeten
+    %% External actors
     User("User/Client"):::external
 
-    %% Subgraphs
     subgraph "Frontend"
         FE1("Component A"):::frontend
         FE2("Component B"):::frontend
@@ -103,28 +159,32 @@ flowchart TD
         BE2("Service Y"):::backend
     end
 
-    subgraph "Datenschicht"
+    subgraph "Data Layer"
         DB[("PostgreSQL")]:::database
+        Cache(["Redis Cache"]):::cache
     end
 
-    %% Verbindungen
-    User -->|"HTTP Request"| FE1
-    FE1 -->|"API Call"| BE1
+    %% Connections
+    User -->|"HTTP"| FE1
+    FE1 --> FE2
+    FE1 -->|"REST API"| BE1
     BE1 -->|"Query"| DB
+    BE1 -->|"Cache lookup"| Cache
 
     %% Click Events
     click FE1 "src/components/A"
+    click FE2 "src/components/B"
     click BE1 "src/services/X.ts"
+    click BE2 "src/services/Y.ts"
 
     %% Styles
     classDef frontend fill:#42b883,stroke:#35495e,color:#fff
     classDef backend fill:#3178c6,stroke:#265a8f,color:#fff
     classDef database fill:#336791,stroke:#264d73,color:#fff
+    classDef cache fill:#dc382c,stroke:#a02a22,color:#fff
     classDef external fill:#ff6347,stroke:#cc4f39,color:#fff
-```
-
-Schreibe den fertigen Mermaid-Code in eine Datei namens `ARCHITECTURE.mmd`.
-```
+</output_template>
+````
 
 ---
 
@@ -143,28 +203,22 @@ claude
 
 ### Als CLAUDE.md-Anweisung
 
-Fuege folgendes zu deiner `CLAUDE.md` hinzu, damit Claude Code auf Anfrage Diagramme erzeugt:
+Fuege folgendes zu deiner `CLAUDE.md` hinzu:
 
 ```markdown
 ## Diagramm-Generierung
 
-Wenn der User ein Architektur-Diagramm anfragt, lies die Datei `DIAGRAM_PROMPT.md`
-und befolge die Anweisungen darin. Schreibe das Ergebnis nach `ARCHITECTURE.mmd`.
+Wenn der User ein Architektur-Diagramm anfragt, befolge die Anweisungen
+in `DIAGRAM_PROMPT.md`. Schreibe das Ergebnis nach `ARCHITECTURE.mmd`.
 ```
 
 ### Ausgabe validieren
 
-Die erzeugte `.mmd`-Datei kann so validiert werden:
-
 ```bash
-# Mit npx (kein Install noetig)
 npx @mermaid-js/mermaid-cli mmdc -i ARCHITECTURE.mmd -o ARCHITECTURE.svg
-
-# Oder mit installiertem mermaid-cli
-mmdc -i ARCHITECTURE.mmd -o ARCHITECTURE.svg
 ```
 
-Falls Syntax-Fehler auftreten, kann Claude Code den Fix-Schritt ausfuehren:
+Falls Syntax-Fehler auftreten:
 
 ```
 Der Mermaid-Code in ARCHITECTURE.mmd hat folgenden Parser-Fehler:
@@ -177,8 +231,15 @@ Gib nur den korrigierten Mermaid-Code zurueck.
 
 ---
 
-## Hinweise
+## Optimierungen gegenueber GitDiagram
 
-- **Kosten**: GitDiagram nutzt 3 separate LLM-Aufrufe, um Tokens zu sparen. Claude Code hat direkten Zugriff auf das Repo, daher ist ein einzelner Prompt effizienter.
-- **Qualitaet**: Die Diagramm-Qualitaet haengt stark von der Groesse und Dokumentation des Repos ab. Gut dokumentierte Projekte mit klarer Verzeichnisstruktur liefern die besten Ergebnisse.
-- **Interaktivitaet**: Die `click`-Events in Mermaid erzeugen klickbare Nodes. In einem Browser-Renderer (z.B. GitHub-Preview, Mermaid Live Editor) werden diese zu Links.
+| Aspekt | GitDiagram (Original) | Dieser Prompt |
+|---|---|---|
+| LLM-Aufrufe | 3 separate Calls | 1 konsolidierter Prompt |
+| Repo-Zugriff | File-Tree + README als String | Claude Code liest direkt |
+| Sprache | Englisch (Prompt) | Englisch (bessere Ergebnisse) |
+| Steuerung | Freitext-Anweisungen | XML-Tags (`<rules>`, `<syntax_rules>`, etc.) |
+| Validierung | Externer Mermaid-Validator + Fix-Loop | Self-Check im Prompt + optionaler Validator |
+| Skalierung | Keine Begrenzung | 15–35 Nodes Cap gegen Ueberladung |
+| Syntax-Regeln | 5 Regeln | 11 Regeln (+ `end`-Keyword, Ziffern-IDs, Semikolons, leere Subgraphs, verschachtelte Quotes) |
+| Datei-Filter | Keiner | Explizite Exclude-Liste fuer irrelevante Dirs |
